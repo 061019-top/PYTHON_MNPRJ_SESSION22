@@ -138,3 +138,45 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# File test
+# Import hàm tính toán từ file main.py
+from mnprj import calculate_energy_financials
+
+def test_no_discount_scenario():
+    """Trường hợp lượng điện tiêu thụ < 50,000 kWh (0% chiết khấu)"""
+    devices_mock = [
+        {'new_index': 30000, 'old_index': 10000}, # Tiêu thụ 20,000
+        {'new_index': 20000, 'old_index': 10000}  # Tiêu thụ 10,000
+    ]
+    # Tổng điện = 30,000. Tiền = 30,000 * 3000 = 90,000,000
+    energy, discount, cost = calculate_energy_financials(devices_mock)
+    
+    assert energy == 30000
+    assert discount == 0.0
+    assert cost == 90000000.0
+
+def test_discount_scenario():
+    """Trường hợp lượng điện tiêu thụ >= 50,000 kWh (3% chiết khấu)"""
+    devices_mock = [
+        {'new_index': 50000, 'old_index': 10000}, # Tiêu thụ 40,000
+        {'new_index': 30000, 'old_index': 10000}  # Tiêu thụ 20,000
+    ]
+    # Tổng điện = 60,000. Chiết khấu 3%. 
+    # Tiền = 60,000 * 3000 * 0.97 = 174,600,000
+    energy, discount, cost = calculate_energy_financials(devices_mock)
+    
+    assert energy == 60000
+    assert discount == 0.03
+    assert cost == 174600000.0
+
+def test_zero_consumption():
+    """Trường hợp lượng điện tiêu thụ = 0 kWh (Edge Case)"""
+    devices_mock = [
+        {'new_index': 1000, 'old_index': 1000}
+    ]
+    energy, discount, cost = calculate_energy_financials(devices_mock)
+    
+    assert energy == 0
+    assert discount == 0.0
+    assert cost == 0.0
